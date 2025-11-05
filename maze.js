@@ -18,7 +18,7 @@ class Cell {
     }
 
     draw(ctx, cellWidth) {
-        ctx.strokeStyle = '#000000';
+        ctx.strokeStyle = '#4e0101ff';
         ctx.lineWidth = 4;
         ctx.beginPath();
 
@@ -126,13 +126,14 @@ class Cell {
 }
 
 class Maze {
-    constructor(cols, rows, canvas) {
+    constructor(cols, rows, canvas, randomness = 0.25) {
         this.grid = [];
         this.cols = cols;
         this.rows = rows;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.cellWidth = canvas.width / cols;
+        this.randomness = randomness;
         this.initializeGrid();
     }
 
@@ -179,15 +180,28 @@ class Maze {
                 currentCell = randomNeighborCell;
                 currentCell.visited = true;
             } else {
-                currentCell = stack.pop();
+                if (stack.length > 0) {
+                    const roll = Math.random();
+                    if (roll < this.randomness) {
+                        // vælg random element fra stack
+                        console.log("random")
+                        const randIndex = randomInteger(0, stack.length);
+                        currentCell = stack.splice(randIndex, 1)[0];
+                    } else {
+                        // standard
+                        currentCell = stack.pop();
+                    }
+                } else {
+                    currentCell = null;
+                }
             }
-        }
+        } 
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('canvas');
-    const maze = new Maze(20, 20, canvas);
+    const maze = new Maze(20, 20, canvas, 0.25);
 
     // TODO: Fjern nogle af væggene på en smart måde.
     maze.generate();
